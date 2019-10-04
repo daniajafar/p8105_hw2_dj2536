@@ -92,5 +92,17 @@ combined_data3 = combined_data3 %>%
 ```
 
 
+```{r Problem 3}
+
+baby_names = read_csv("./data/Popular_Baby_Names.csv") %>% 
+janitor::clean_names() %>% 
+distinct()
+
+
+
+
+```
+
+
 
 
