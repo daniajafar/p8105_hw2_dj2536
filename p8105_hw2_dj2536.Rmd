@@ -83,8 +83,14 @@ combined_data3 = combined_data3 %>%
   select(-day.x, -prez_dem, -prez_gop, -day.y)
 
 
-## The pols data contained information related to the number of national politicians who are democratic or republican at any given time, the unemployment data contained information on unemployment rates for every month of a year,  the snp data set contains information related to Standard & Poor’s stock market index. The precipitation 2017 & precipitation 2018 data sets contain information on the amount of precipitation in those years. The Mr. Trash Wheel data set contains information on a vessel that removes trash from the Inner Harbor in Baltimore, Maryland.The also gives information on various items that were found in dumpsters from 2014-2016.
+## The pols data contained information related to the number of national politicians who are democratic or republican at any given time, the unemployment data contained information on unemployment rates for every month of a year,  the snp data set contains information related to Standard & Poor’s stock market index and it shows that the economy is improving over time. The precipitation 2017 & precipitation 2018 data sets contain information on the amount of precipitation in those years. The Mr. Trash Wheel data set contains information on a vessel that removes trash from the Inner Harbor in Baltimore, Maryland.The also gives information on various items that were found in dumpsters from 2014-2016.
 
+#The dimensions for the snp data set are 787*4. The key variables are month, day, year, and close. 
+#The dimensions for the trash_wheel_data data set are 344*18. The key variables are dumpster, month, day, and weight_tons. 
+#The dimensions for the data_2018 data set are 12*3. The key variables are month, total, and year. 
+#The dimensions for the data_2017 data set are 12*3. The key variables are month, total, and year. 
+#The dimensions for the unemployment data set are 816*3. The key variables are year, month, and unemployment rate. 
+#The dimensions for the pols data set are 822*11. The key variables are year, month, and day.
 
 ##Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
@@ -93,14 +99,46 @@ combined_data3 = combined_data3 %>%
 
 
 ```{r Problem 3}
-
 baby_names = read_csv("./data/Popular_Baby_Names.csv") %>% 
-janitor::clean_names() %>% 
-distinct()
+ janitor::clean_names() %>% 
+ distinct() %>% 
+ mutate(ethnicity = recode(ethnicity, `ASIAN AND PACI` = "ASIAN AND PACIFIC ISLANDER", `WHITE NON HISP` = "WHITE NON HISPANIC", `BLACK NON HISP` = "BLACK NON HISPANIC")) %>% 
+#the unique(pull(baby_names, ethnicity)) function tells how many expressions there are of the same ethnicity 
+  mutate(
+  childs_first_name = str_to_title(childs_first_name)
+) 
+
+  olivia = 
+  filter(baby_names, childs_first_name == "Olivia", gender == "FEMALE") %>% 
+    select(ethnicity, year_of_birth, rank) %>% 
+  pivot_wider(
+  names_from = year_of_birth, 
+  values_from = rank)
+  
+```
+# A table showing the most popular male names over time 
+```{r male table}
+popular_male_name = 
+  filter(baby_names, gender == "MALE", rank == 1) %>% 
+  select(ethnicity, childs_first_name, year_of_birth) %>% 
+  pivot_wider(names_from = year_of_birth,
+              values_from = childs_first_name)
+
+```
 
 
-
-
+```{r}
+baby_names %>% 
+  filter(gender == "MALE") %>%
+  filter(ethnicity == "WHITE NON HISPANIC")%>%
+  filter(year_of_birth == "2016")%>% 
+  ggplot(aes(x = rank, y = count)) + 
+  geom_point(aes(), alpha = .5) +
+labs(
+    title = "Names for White Non-hispanic Children in 2016",
+    x = "rank of name",
+    y = "count of name"
+)
 ```
 
 
